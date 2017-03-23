@@ -1,5 +1,7 @@
 class MoviesController < ApplicationController
 
+  #https://boiling-tor-81348.herokuapp.com/
+
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
@@ -11,18 +13,34 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if (params[:sort] == nil)
-      @movies = Movie.all
+    #debugger
+    @all_ratings = Movie.ratings
+    
+    if (params[:ratings] == nil)
+      if (@saved_ratings != nil)
+        params[:ratings] = @saved_ratings
+      else
+        @saved_ratings = @all_ratings
+      end
     else
-      @movies = Movie.all.order(params[:sort])
-      if(params[:sort]== "title")
-        @title_text = "hilite"
-      end
+      @saved_ratings = params[:ratings]
+    end
+    
+    if (params[:sort] == nil)
+      params[:ratings] = @saved_ratings
+      @movies = Movie.where({ rating: params[:ratings].keys})
+    else
+      params[:ratings] = @saved_ratings
+      @movies = Movie.where({ rating: params[:ratings].keys}).order(params[:sort])
+    end
       
-      if(params[:sort]== "release_date")
-        @release_date_text = "hilite"
-      end
-    end 
+    if(params[:sort]== "title")
+      @title_text = "hilite"
+    end
+    
+    if(params[:sort]== "release_date")
+      @release_date_text = "hilite"
+    end
 
   end
 
