@@ -16,21 +16,17 @@ class MoviesController < ApplicationController
     #debugger
     @all_ratings = Movie.ratings
     
-    if (params[:ratings] == nil)
-      if (@saved_ratings != nil)
-        params[:ratings] = @saved_ratings
-      else
-        @saved_ratings = @all_ratings
-      end
-    else
-      @saved_ratings = params[:ratings]
+    #set parameters to session if params are empty
+    params[:sort] ||= session[:sort]
+    params[:ratings] ||= session[:ratings]
+    
+    if params[:ratings] == nil
+      params[:ratings] = @all_ratings
     end
     
     if (params[:sort] == nil)
-      params[:ratings] = @saved_ratings
       @movies = Movie.where({ rating: params[:ratings].keys})
     else
-      params[:ratings] = @saved_ratings
       @movies = Movie.where({ rating: params[:ratings].keys}).order(params[:sort])
     end
       
@@ -41,7 +37,10 @@ class MoviesController < ApplicationController
     if(params[:sort]== "release_date")
       @release_date_text = "hilite"
     end
-
+    
+    #put params into session to store them
+    session[:ratings] = params[:ratings]
+    session[:sort] = params[:sort]
   end
 
   def new
